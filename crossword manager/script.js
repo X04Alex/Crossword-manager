@@ -354,6 +354,24 @@ class CrosswordManager {
         
         console.log('Input keydown:', e.key, 'on cell:', row, col);
         
+        // If the key is a single letter, replace current cell's value
+        if (e.key.length === 1 && /^[a-zA-Z]$/.test(e.key)) {
+            e.preventDefault();
+            const row = parseInt(e.target.dataset.row);
+            const col = parseInt(e.target.dataset.col);
+
+            const value = e.key.toUpperCase();
+            this.grid[row][col].value = value;
+            this.grid[row][col].input.value = value;
+
+            // Automatically move to the next cell like normal typing
+            this.advanceToNextCell(row, col);
+
+            this.updateClues();
+            this.updateWordDetails();
+            return; // Stop further handling of this key
+        }
+
         switch (e.key) {
             case 'ArrowUp':
                 e.preventDefault();
