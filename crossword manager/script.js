@@ -5,6 +5,7 @@ class CrosswordManager {
         this.grid = [];
         this.isEditMode = true;
         this.selectedCell = null;
+        this.activeClueIndex = 0;
         this.words = {
             across: [],
             down: []
@@ -352,9 +353,19 @@ class CrosswordManager {
         switch (e.key) {
             case 'Tab':
                 e.preventDefault();
-                this.toggleMode();
+                //this.toggleMode();
                 break;
         }
+
+        if (e.key === 'Tab') {
+            e.preventDefault();
+            const order = this.getClueOrder();
+            if (order.length === 0) return;
+        
+            const direction = e.shiftKey ? -1 : 1;
+            this.goToClueByIndex(this.activeClueIndex + direction);
+        }
+        
     }
     
     handleInputKeydown(e) {
@@ -477,7 +488,19 @@ class CrosswordManager {
         if (activeWord) {
             const num = this.getWordNumber(activeWord.startRow, activeWord.startCol);
             this.highlightClue(this.typingDirection, num);
+
+            // Sync activeClueIndex
+            const order = this.getClueOrder();
+            const clueIndex = order.findIndex(o =>
+                o.direction === this.typingDirection &&
+                this.words[o.direction][o.index].startRow === activeWord.startRow &&
+                this.words[o.direction][o.index].startCol === activeWord.startCol
+            );
+            if (clueIndex !== -1) {
+                this.activeClueIndex = clueIndex;
+            }
         }
+
 
         
         // Ensure the selected cell's input is properly focused if in edit mode
@@ -504,21 +527,116 @@ class CrosswordManager {
     
     advanceToNextCell(row, col) {
         if (this.typingDirection === 'across') {
-            // Move right, wrap to next row
-            if (col < this.gridSize - 1) {
-                this.selectCell(row, col + 1);
-            } else if (row < this.gridSize - 1) {
-                this.selectCell(row + 1, 0);
+            // Move right until you find a non-black or wrap to next row
+            let nextCol = col + 1;
+            let nextRow = row;
+    
+            while (nextRow < this.gridSize) {
+                while (nextCol < this.gridSize && this.grid[nextRow][nextCol].isBlack) {
+                    nextCol++;
+                }
+                if (nextCol < this.gridSize) break;
+                // Wrap to next row
+                nextRow++;
+                nextCol = 0;
             }
+    
+            if (nextRow < this.gridSize && nextCol < this.gridSize) {
+                this.selectCell(nextRow, nextCol);
+                // After moving, ensure clue highlight and active index are synced
+                if (this.selectedCell) {
+                    const row = parseInt(this.selectedCell.element.dataset.row);
+                    const col = parseInt(this.selectedCell.element.dataset.col);
+                    const activeWord = this.getWordAt(row, col, this.typingDirection);
+
+                    if (activeWord) {
+                        const num = this.getWordNumber(activeWord.startRow, activeWord.startCol);
+                        this.highlightClue(this.typingDirection, num);
+
+                        // Sync activeClueIndex
+                        const order = this.getClueOrder();
+                        const clueIndex = order.findIndex(o =>
+                            o.direction === this.typingDirection &&
+                            this.words[o.direction][o.index].startRow === activeWord.startRow &&
+                            this.words[o.direction][o.index].startCol === activeWord.startCol
+                        );
+                        if (clueIndex !== -1) {
+                            this.activeClueIndex = clueIndex;
+                        }
+                    }
+                }
+
+            }
+    
         } else if (this.typingDirection === 'down') {
-            // Move down, wrap to next column
-            if (row < this.gridSize - 1) {
-                this.selectCell(row + 1, col);
-            } else if (col < this.gridSize - 1) {
-                this.selectCell(0, col + 1);
+            // Move down until you find a non-black or wrap to next column
+            let nextRow = row + 1;
+            let nextCol = col;
+    
+            while (nextCol < this.gridSize) {
+                while (nextRow < this.gridSize && this.grid[nextRow][nextCol].isBlack) {
+                    nextRow++;
+                }
+                if (nextRow < this.gridSize) break;
+                // Wrap to next column
+                nextCol++;
+                nextRow = 0;
+            }
+    
+            if (nextRow < this.gridSize && nextCol < this.gridSize) {
+                this.selectCell(nextRow, nextCol);
+                // After moving, ensure clue highlight and active index are synced
+                if (this.selectedCell) {
+                    const row = parseInt(this.selectedCell.element.dataset.row);
+                    const col = parseInt(this.selectedCell.element.dataset.col);
+                    const activeWord = this.getWordAt(row, col, this.typingDirection);
+
+                    if (activeWord) {
+                        const num = this.getWordNumber(activeWord.startRow, activeWord.startCol);
+                        this.highlightClue(this.typingDirection, num);
+
+                        // Sync activeClueIndex
+                        const order = this.getClueOrder();
+                        const clueIndex = order.findIndex(o =>
+                            o.direction === this.typingDirection &&
+                            this.words[o.direction][o.index].startRow === activeWord.startRow &&
+                            this.words[o.direction][o.index].startCol === activeWord.startCol
+                        );
+                        if (clueIndex !== -1) {
+                            this.activeClueIndex = clueIndex;
+                        }
+                    }
+                }
+
             }
         }
     }
+    
+
+    getClueOrder() {
+        const order = [];
+    
+        // Across first
+        this.words.across.forEach((word, index) => {
+            order.push({
+                direction: 'across',
+                index: index,
+                number: this.getWordNumber(word.startRow, word.startCol)
+            });
+        });
+    
+        // Then Down
+        this.words.down.forEach((word, index) => {
+            order.push({
+                direction: 'down',
+                index: index,
+                number: this.getWordNumber(word.startRow, word.startCol)
+            });
+        });
+    
+        return order;
+    }
+    
 
     highlightClue(direction, number) {
         // Remove highlight from all clues
@@ -822,6 +940,37 @@ class CrosswordManager {
             });
         }
     }
+
+    goToClueByIndex(index) {
+        const order = this.getClueOrder();
+        if (order.length === 0) return;
+    
+        // Wrap around if needed
+        if (index < 0) index = order.length - 1;
+        if (index >= order.length) index = 0;
+    
+        this.activeClueIndex = index;
+    
+        const { direction, index: wordIndex } = order[this.activeClueIndex];
+        const word = this.words[direction][wordIndex];
+    
+        if (word) {
+            this.typingDirection = direction;
+            this.selectCell(word.startRow, word.startCol);
+    
+            // Highlight clue
+            const clueList = document.getElementById(`${direction}Clues`);
+            const clueEl = clueList.querySelectorAll('.clue-item')[wordIndex];
+            if (clueEl) {
+                document.querySelectorAll('.clue-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                clueEl.classList.add('selected');
+                clueEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    }
+    
     
     
     getWordAt(row, col, direction) {
@@ -988,6 +1137,16 @@ class CrosswordManager {
                 block: 'center'
             });
         }
+
+        // Update activeClueIndex so Tab starts from here
+        const order = this.getClueOrder();
+        const clickedIndex = order.findIndex(o =>
+            o.direction === direction && o.index === index
+        );
+        if (clickedIndex !== -1) {
+            this.activeClueIndex = clickedIndex;
+        }
+
     }
     
     
