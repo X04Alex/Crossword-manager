@@ -77,13 +77,12 @@ class CrosswordManager {
     setupEventListeners() {
         // Grid interaction
         document.addEventListener('click', (e) => {
-            const cell = e.target.classList.contains('cell') ? e.target : e.target.closest('.cell');
-            if (cell) {
-                this.handleCellClick(e);
+            const clueEl = e.target.closest('.clue-item');
+            if (clueEl) {
+                this.selectWordFromClue(clueEl);
             }
-
-        
         });
+        
 
         
 
@@ -472,6 +471,14 @@ class CrosswordManager {
         this.highlightConnectedWords(row, col);
         
         this.updateWordDetails();
+
+        // Highlight matching clue
+        const activeWord = this.getWordAt(row, col, this.typingDirection);
+        if (activeWord) {
+            const num = this.getWordNumber(activeWord.startRow, activeWord.startCol);
+            this.highlightClue(this.typingDirection, num);
+        }
+
         
         // Ensure the selected cell's input is properly focused if in edit mode
         // Ensure the selected cell's input is properly focused if in edit mode
@@ -512,6 +519,30 @@ class CrosswordManager {
             }
         }
     }
+
+    highlightClue(direction, number) {
+        // Remove highlight from all clues
+        document.querySelectorAll('.clue-item').forEach(item => {
+            item.classList.remove('selected');
+        });
+    
+        // Find the clue that matches
+        const clueList = document.getElementById(`${direction}Clues`);
+        const clue = Array.from(clueList.querySelectorAll('.clue-item'))
+            .find(item => {
+                const numSpan = item.querySelector('.clue-number');
+                return numSpan && parseInt(numSpan.textContent) === number;
+            });
+    
+        if (clue) {
+            clue.classList.add('selected');
+            clue.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        }
+    }
+    
     
     
     toggleBlackSquare(row, col) {
@@ -875,8 +906,12 @@ class CrosswordManager {
             clueItem.className = 'clue-item';
             clueItem.dataset.direction = direction;
             clueItem.dataset.index = index;
-            
+
             const wordNumber = this.getWordNumber(word.startRow, word.startCol);
+            clueItem.dataset.number = wordNumber;
+
+            
+            //const wordNumber = this.getWordNumber(word.startRow, word.startCol);
             const displayWord = word.word.replace(/\s/g, '•');
             const clueText = this.clues[direction][wordNumber] || '';
             clueItem.innerHTML = `
@@ -933,17 +968,28 @@ class CrosswordManager {
         const direction = clueElement.dataset.direction;
         const index = parseInt(clueElement.dataset.index);
         const word = this.words[direction][index];
-        
+    
         if (word) {
+            // Set typing direction based on clicked clue
+            this.typingDirection = direction;
+    
+            // Select the first cell of the word
             this.selectCell(word.startRow, word.startCol);
-            
-            // Highlight the clue item
+    
+            // Highlight the clue in the list
             document.querySelectorAll('.clue-item').forEach(item => {
                 item.classList.remove('selected');
             });
             clueElement.classList.add('selected');
+    
+            // Scroll clue into view
+            clueElement.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
         }
     }
+    
     
     updateWordDetails() {
         const detailsContainer = document.getElementById('wordDetails');
