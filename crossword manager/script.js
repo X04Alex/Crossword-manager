@@ -85,6 +85,8 @@ class CrosswordManager {
         
         });
 
+        
+
         document.getElementById('saveClue').addEventListener('click', () => {
             if (!this.selectedCell) return;
             const row = parseInt(this.selectedCell.element.dataset.row);
@@ -154,6 +156,14 @@ class CrosswordManager {
         document.getElementById('addBlackSquares').addEventListener('click', () => {
             this.showBlackSquareInstructions();
         });
+
+        document.getElementById('playCrossword').addEventListener('click', () => {
+            this.loadCrossword(true); // true = play mode
+            this.isEditMode = true; // allow typing
+            document.getElementById('currentMode').textContent = 'Play';
+            document.getElementById('toggleMode').style.display = 'none'; // hide toggle in play
+        });
+        
         
         // Add a debug method to check grid state
         window.debugGrid = () => {
@@ -1089,7 +1099,7 @@ class CrosswordManager {
         URL.revokeObjectURL(url);
     }
     
-    loadCrossword() {
+    loadCrossword(playMode = false) {
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = '.json';
@@ -1100,7 +1110,7 @@ class CrosswordManager {
                 reader.onload = (e) => {
                     try {
                         const data = JSON.parse(e.target.result);
-                        this.loadGridData(data);
+                        this.loadGridData(data, playMode);
                     } catch (error) {
                         alert('Error loading file: ' + error.message);
                     }
@@ -1111,46 +1121,47 @@ class CrosswordManager {
         input.click();
     }
     
-    loadGridData(data) {
+    
+    loadGridData(data, playMode = false) {
         if (data.grid && data.grid.length === this.gridSize) {
             for (let row = 0; row < this.gridSize; row++) {
                 for (let col = 0; col < this.gridSize; col++) {
                     const cellData = data.grid[row][col];
                     const cell = this.grid[row][col];
-
-                    // Ensure input is attached
+    
                     if (cell.input && !cell.element.contains(cell.input)) {
                         cell.element.appendChild(cell.input);
                     }
-
+    
                     cell.isBlack = !!cellData.isBlack;
                     cell.element.classList.toggle('black', cell.isBlack);
-
-                    cell.value = cellData.value || '';
-                    cell.input.value = cellData.value || '';
-
+    
                     if (cell.isBlack) {
                         cell.input.readOnly = true;
                         cell.input.disabled = true;
                         cell.input.style.display = 'none';
                         cell.input.style.visibility = 'hidden';
                     } else {
-                        cell.input.readOnly = false;
+                        cell.input.readOnly = !this.isEditMode;
                         cell.input.disabled = false;
                         cell.input.style.display = 'block';
                         cell.input.style.visibility = 'visible';
                     }
-
+    
+                    // In play mode, leave it blank
+                    cell.value = playMode ? '' : (cellData.value || '');
+                    cell.input.value = playMode ? '' : (cellData.value || '');
                 }
             }
-            
+    
             if (data.clues) {
                 this.clues = data.clues;
             }
-            
+    
             this.updateClues();
         }
     }
+    
     
     exportCrossword() {
         const gridText = this.grid.map(row => 
