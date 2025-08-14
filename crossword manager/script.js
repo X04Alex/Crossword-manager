@@ -523,94 +523,41 @@ class CrosswordManager {
             }
         }
 
+        this.syncActiveClueHighlight();
+
+
     }
     
     advanceToNextCell(row, col) {
         if (this.typingDirection === 'across') {
-            // Move right until you find a non-black or wrap to next row
-            let nextCol = col + 1;
             let nextRow = row;
+            let nextCol = col + 1;
     
             while (nextRow < this.gridSize) {
-                while (nextCol < this.gridSize && this.grid[nextRow][nextCol].isBlack) {
-                    nextCol++;
-                }
+                while (nextCol < this.gridSize && this.grid[nextRow][nextCol].isBlack) nextCol++;
                 if (nextCol < this.gridSize) break;
-                // Wrap to next row
                 nextRow++;
                 nextCol = 0;
             }
+            if (nextRow < this.gridSize && nextCol < this.gridSize) this.selectCell(nextRow, nextCol);
     
-            if (nextRow < this.gridSize && nextCol < this.gridSize) {
-                this.selectCell(nextRow, nextCol);
-                // After moving, ensure clue highlight and active index are synced
-                if (this.selectedCell) {
-                    const row = parseInt(this.selectedCell.element.dataset.row);
-                    const col = parseInt(this.selectedCell.element.dataset.col);
-                    const activeWord = this.getWordAt(row, col, this.typingDirection);
-
-                    if (activeWord) {
-                        const num = this.getWordNumber(activeWord.startRow, activeWord.startCol);
-                        this.highlightClue(this.typingDirection, num);
-
-                        // Sync activeClueIndex
-                        const order = this.getClueOrder();
-                        const clueIndex = order.findIndex(o =>
-                            o.direction === this.typingDirection &&
-                            this.words[o.direction][o.index].startRow === activeWord.startRow &&
-                            this.words[o.direction][o.index].startCol === activeWord.startCol
-                        );
-                        if (clueIndex !== -1) {
-                            this.activeClueIndex = clueIndex;
-                        }
-                    }
-                }
-
-            }
-    
-        } else if (this.typingDirection === 'down') {
-            // Move down until you find a non-black or wrap to next column
+        } else {
             let nextRow = row + 1;
             let nextCol = col;
     
             while (nextCol < this.gridSize) {
-                while (nextRow < this.gridSize && this.grid[nextRow][nextCol].isBlack) {
-                    nextRow++;
-                }
+                while (nextRow < this.gridSize && this.grid[nextRow][nextCol].isBlack) nextRow++;
                 if (nextRow < this.gridSize) break;
-                // Wrap to next column
                 nextCol++;
                 nextRow = 0;
             }
-    
-            if (nextRow < this.gridSize && nextCol < this.gridSize) {
-                this.selectCell(nextRow, nextCol);
-                // After moving, ensure clue highlight and active index are synced
-                if (this.selectedCell) {
-                    const row = parseInt(this.selectedCell.element.dataset.row);
-                    const col = parseInt(this.selectedCell.element.dataset.col);
-                    const activeWord = this.getWordAt(row, col, this.typingDirection);
-
-                    if (activeWord) {
-                        const num = this.getWordNumber(activeWord.startRow, activeWord.startCol);
-                        this.highlightClue(this.typingDirection, num);
-
-                        // Sync activeClueIndex
-                        const order = this.getClueOrder();
-                        const clueIndex = order.findIndex(o =>
-                            o.direction === this.typingDirection &&
-                            this.words[o.direction][o.index].startRow === activeWord.startRow &&
-                            this.words[o.direction][o.index].startCol === activeWord.startCol
-                        );
-                        if (clueIndex !== -1) {
-                            this.activeClueIndex = clueIndex;
-                        }
-                    }
-                }
-
-            }
+            if (nextRow < this.gridSize && nextCol < this.gridSize) this.selectCell(nextRow, nextCol);
         }
+    
+        // 🔑 Now that selection moved, rebuild clues & apply highlight deterministically
+        this.syncActiveClueHighlight();
     }
+    
     
 
     getClueOrder() {
@@ -1049,34 +996,70 @@ class CrosswordManager {
     updateClueDisplay(direction) {
         const clueList = document.getElementById(`${direction}Clues`);
         clueList.innerHTML = '';
-        
+    
         this.words[direction].forEach((word, index) => {
             const clueItem = document.createElement('div');
             clueItem.className = 'clue-item';
             clueItem.dataset.direction = direction;
             clueItem.dataset.index = index;
-
+            clueItem.dataset.startRow = word.startRow;
+            clueItem.dataset.startCol = word.startCol;
+    
+            // ✅ define the number once and reuse it
             const wordNumber = this.getWordNumber(word.startRow, word.startCol);
-            clueItem.dataset.number = wordNumber;
-
-            
-            //const wordNumber = this.getWordNumber(word.startRow, word.startCol);
+            clueItem.dataset.number = String(wordNumber);
+    
             const displayWord = word.word.replace(/\s/g, '•');
             const clueText = this.clues[direction][wordNumber] || '';
+    
             clueItem.innerHTML = `
                 <span class="clue-number">${wordNumber}.</span>
                 <span class="clue-text">${clueText || displayWord}</span>
             `;
-
-            
+    
             clueList.appendChild(clueItem);
         });
     }
+    
     
     getWordNumber(row, col) {
         if (!this.numberGrid) this.generateNumbers();
         return this.numberGrid[row][col] || '';
     }
+
+    syncActiveClueHighlight() {
+        // Make sure words & DOM are fresh before highlighting
+        this.updateClues();
+        if (!this.selectedCell) return;
+    
+        const r = +this.selectedCell.element.dataset.row;
+        const c = +this.selectedCell.element.dataset.col;
+    
+        const dir = this.typingDirection;
+        const word = this.getWordAt(r, c, dir);
+        if (!word) return;
+    
+        // Find index of this word in the computed list
+        const wordIndex = this.words[dir].findIndex(
+            w => w.startRow === word.startRow && w.startCol === word.startCol
+        );
+        if (wordIndex === -1) return;
+    
+        // Update activeClueIndex for Tab/Shift+Tab
+        const order = this.getClueOrder();
+        const idxInOrder = order.findIndex(o => o.direction === dir && o.index === wordIndex);
+        if (idxInOrder !== -1) this.activeClueIndex = idxInOrder;
+    
+        // Clear previous selection and apply to the current DOM node
+        document.querySelectorAll('.clue-item').forEach(el => el.classList.remove('selected'));
+        const list = document.getElementById(`${dir}Clues`);
+        const el = list?.querySelector(`.clue-item[data-direction="${dir}"][data-index="${wordIndex}"]`);
+        if (el) {
+            el.classList.add('selected');
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+    
     
 
     generateNumbers() {
