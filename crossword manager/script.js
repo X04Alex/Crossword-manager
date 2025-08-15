@@ -268,6 +268,15 @@ class CrosswordManager {
             });
         });
         
+        // Grid cell click handling (single/double click via timing)
+        const gridContainer = document.getElementById('crosswordGrid');
+        gridContainer.addEventListener('click', (e) => {
+            const cell = e.target.classList.contains('cell') ? e.target : e.target.closest('.cell');
+            if (cell) {
+                this.handleCellClick(e);
+            }
+        });
+
         // Clue interaction
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('clue-item')) {
@@ -305,6 +314,7 @@ class CrosswordManager {
         if (this.typingDirection === 'across' || this.typingDirection === 'down') {
             this.highlightConnectedWords(row, col);
         }
+        this.syncActiveClueHighlight();
         
     }
     
