@@ -1,0 +1,1021 @@
+{
+  "grid": [
+    [
+      {
+        "value": "B",
+        "isBlack": false
+      },
+      {
+        "value": "E",
+        "isBlack": false
+      },
+      {
+        "value": "N",
+        "isBlack": false
+      },
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "G",
+        "isBlack": false
+      },
+      {
+        "value": "L",
+        "isBlack": false
+      },
+      {
+        "value": "A",
+        "isBlack": false
+      },
+      {
+        "value": "D",
+        "isBlack": false
+      },
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "A",
+        "isBlack": false
+      },
+      {
+        "value": "S",
+        "isBlack": false
+      },
+      {
+        "value": "W",
+        "isBlack": false
+      },
+      {
+        "value": "E",
+        "isBlack": false
+      },
+      {
+        "value": "L",
+        "isBlack": false
+      },
+      {
+        "value": "L",
+        "isBlack": false
+      }
+    ],
+    [
+      {
+        "value": "E",
+        "isBlack": false
+      },
+      {
+        "value": "M",
+        "isBlack": false
+      },
+      {
+        "value": "O",
+        "isBlack": false
+      },
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "L",
+        "isBlack": false
+      },
+      {
+        "value": "E",
+        "isBlack": false
+      },
+      {
+        "value": "G",
+        "isBlack": false
+      },
+      {
+        "value": "O",
+        "isBlack": false
+      },
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "B",
+        "isBlack": false
+      },
+      {
+        "value": "L",
+        "isBlack": false
+      },
+      {
+        "value": "A",
+        "isBlack": false
+      },
+      {
+        "value": "D",
+        "isBlack": false
+      },
+      {
+        "value": "E",
+        "isBlack": false
+      },
+      {
+        "value": "R",
+        "isBlack": false
+      }
+    ],
+    [
+      {
+        "value": "T",
+        "isBlack": false
+      },
+      {
+        "value": "U",
+        "isBlack": false
+      },
+      {
+        "value": "R",
+        "isBlack": false
+      },
+      {
+        "value": "N",
+        "isBlack": false
+      },
+      {
+        "value": "O",
+        "isBlack": false
+      },
+      {
+        "value": "V",
+        "isBlack": false
+      },
+      {
+        "value": "E",
+        "isBlack": false
+      },
+      {
+        "value": "R",
+        "isBlack": false
+      },
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "R",
+        "isBlack": false
+      },
+      {
+        "value": "I",
+        "isBlack": false
+      },
+      {
+        "value": "T",
+        "isBlack": false
+      },
+      {
+        "value": "U",
+        "isBlack": false
+      },
+      {
+        "value": "A",
+        "isBlack": false
+      },
+      {
+        "value": "L",
+        "isBlack": false
+      }
+    ],
+    [
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "O",
+        "isBlack": false
+      },
+      {
+        "value": "W",
+        "isBlack": false
+      },
+      {
+        "value": "E",
+        "isBlack": false
+      },
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "I",
+        "isBlack": false
+      },
+      {
+        "value": "D",
+        "isBlack": false
+      },
+      {
+        "value": "O",
+        "isBlack": false
+      },
+      {
+        "value": "P",
+        "isBlack": false
+      },
+      {
+        "value": "E",
+        "isBlack": false
+      },
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "",
+        "isBlack": true
+      }
+    ],
+    [
+      {
+        "value": "G",
+        "isBlack": false
+      },
+      {
+        "value": "I",
+        "isBlack": false
+      },
+      {
+        "value": "F",
+        "isBlack": false
+      },
+      {
+        "value": "T",
+        "isBlack": false
+      },
+      {
+        "value": "E",
+        "isBlack": false
+      },
+      {
+        "value": "R",
+        "isBlack": false
+      },
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "S",
+        "isBlack": false
+      },
+      {
+        "value": "N",
+        "isBlack": false
+      },
+      {
+        "value": "A",
+        "isBlack": false
+      },
+      {
+        "value": "P",
+        "isBlack": false
+      },
+      {
+        "value": "R",
+        "isBlack": false
+      },
+      {
+        "value": "I",
+        "isBlack": false
+      },
+      {
+        "value": "N",
+        "isBlack": false
+      },
+      {
+        "value": "G",
+        "isBlack": false
+      }
+    ],
+    [
+      {
+        "value": "A",
+        "isBlack": false
+      },
+      {
+        "value": "S",
+        "isBlack": false
+      },
+      {
+        "value": "L",
+        "isBlack": false
+      },
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "R",
+        "isBlack": false
+      },
+      {
+        "value": "A",
+        "isBlack": false
+      },
+      {
+        "value": "P",
+        "isBlack": false
+      },
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "A",
+        "isBlack": false
+      },
+      {
+        "value": "D",
+        "isBlack": false
+      },
+      {
+        "value": "A",
+        "isBlack": false
+      },
+      {
+        "value": "M",
+        "isBlack": false
+      },
+      {
+        "value": "A",
+        "isBlack": false
+      },
+      {
+        "value": "N",
+        "isBlack": false
+      },
+      {
+        "value": "T",
+        "isBlack": false
+      }
+    ],
+    [
+      {
+        "value": "S",
+        "isBlack": false
+      },
+      {
+        "value": "H",
+        "isBlack": false
+      },
+      {
+        "value": "O",
+        "isBlack": false
+      },
+      {
+        "value": "O",
+        "isBlack": false
+      },
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "G",
+        "isBlack": false
+      },
+      {
+        "value": "U",
+        "isBlack": false
+      },
+      {
+        "value": "S",
+        "isBlack": false
+      },
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "G",
+        "isBlack": false
+      },
+      {
+        "value": "A",
+        "isBlack": false
+      },
+      {
+        "value": "M",
+        "isBlack": false
+      },
+      {
+        "value": "E",
+        "isBlack": false
+      },
+      {
+        "value": "R",
+        "isBlack": false
+      }
+    ],
+    [
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "W",
+        "isBlack": false
+      },
+      {
+        "value": "I",
+        "isBlack": false
+      },
+      {
+        "value": "F",
+        "isBlack": false
+      },
+      {
+        "value": "E",
+        "isBlack": false
+      },
+      {
+        "value": "B",
+        "isBlack": false
+      },
+      {
+        "value": "E",
+        "isBlack": false
+      },
+      {
+        "value": "A",
+        "isBlack": false
+      },
+      {
+        "value": "T",
+        "isBlack": false
+      },
+      {
+        "value": "E",
+        "isBlack": false
+      },
+      {
+        "value": "R",
+        "isBlack": false
+      },
+      {
+        "value": "S",
+        "isBlack": false
+      },
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "",
+        "isBlack": true
+      }
+    ],
+    [
+      {
+        "value": "S",
+        "isBlack": false
+      },
+      {
+        "value": "H",
+        "isBlack": false
+      },
+      {
+        "value": "E",
+        "isBlack": false
+      },
+      {
+        "value": "L",
+        "isBlack": false
+      },
+      {
+        "value": "L",
+        "isBlack": false
+      },
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "T",
+        "isBlack": false
+      },
+      {
+        "value": "S",
+        "isBlack": false
+      },
+      {
+        "value": "A",
+        "isBlack": false
+      },
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "K",
+        "isBlack": false
+      },
+      {
+        "value": "I",
+        "isBlack": false
+      },
+      {
+        "value": "T",
+        "isBlack": false
+      },
+      {
+        "value": "E",
+        "isBlack": false
+      }
+    ],
+    [
+      {
+        "value": "F",
+        "isBlack": false
+      },
+      {
+        "value": "O",
+        "isBlack": false
+      },
+      {
+        "value": "R",
+        "isBlack": false
+      },
+      {
+        "value": "H",
+        "isBlack": false
+      },
+      {
+        "value": "I",
+        "isBlack": false
+      },
+      {
+        "value": "R",
+        "isBlack": false
+      },
+      {
+        "value": "E",
+        "isBlack": false
+      },
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "A",
+        "isBlack": false
+      },
+      {
+        "value": "L",
+        "isBlack": false
+      },
+      {
+        "value": "P",
+        "isBlack": false
+      },
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "R",
+        "isBlack": false
+      },
+      {
+        "value": "A",
+        "isBlack": false
+      },
+      {
+        "value": "W",
+        "isBlack": false
+      }
+    ],
+    [
+      {
+        "value": "B",
+        "isBlack": false
+      },
+      {
+        "value": "A",
+        "isBlack": false
+      },
+      {
+        "value": "S",
+        "isBlack": false
+      },
+      {
+        "value": "E",
+        "isBlack": false
+      },
+      {
+        "value": "P",
+        "isBlack": false
+      },
+      {
+        "value": "A",
+        "isBlack": false
+      },
+      {
+        "value": "I",
+        "isBlack": false
+      },
+      {
+        "value": "R",
+        "isBlack": false
+      },
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "I",
+        "isBlack": false
+      },
+      {
+        "value": "R",
+        "isBlack": false
+      },
+      {
+        "value": "V",
+        "isBlack": false
+      },
+      {
+        "value": "I",
+        "isBlack": false
+      },
+      {
+        "value": "N",
+        "isBlack": false
+      },
+      {
+        "value": "E",
+        "isBlack": false
+      }
+    ],
+    [
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "A",
+        "isBlack": false
+      },
+      {
+        "value": "S",
+        "isBlack": false
+      },
+      {
+        "value": "C",
+        "isBlack": false
+      },
+      {
+        "value": "I",
+        "isBlack": false
+      },
+      {
+        "value": "I",
+        "isBlack": false
+      },
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "S",
+        "isBlack": false
+      },
+      {
+        "value": "O",
+        "isBlack": false
+      },
+      {
+        "value": "S",
+        "isBlack": false
+      },
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "",
+        "isBlack": true
+      }
+    ],
+    [
+      {
+        "value": "T",
+        "isBlack": false
+      },
+      {
+        "value": "O",
+        "isBlack": false
+      },
+      {
+        "value": "K",
+        "isBlack": false
+      },
+      {
+        "value": "T",
+        "isBlack": false
+      },
+      {
+        "value": "I",
+        "isBlack": false
+      },
+      {
+        "value": "K",
+        "isBlack": false
+      },
+      {
+        "value": "G",
+        "isBlack": true
+      },
+      {
+        "value": "G",
+        "isBlack": false
+      },
+      {
+        "value": "A",
+        "isBlack": false
+      },
+      {
+        "value": "M",
+        "isBlack": false
+      },
+      {
+        "value": "M",
+        "isBlack": false
+      },
+      {
+        "value": "A",
+        "isBlack": false
+      },
+      {
+        "value": "R",
+        "isBlack": false
+      },
+      {
+        "value": "A",
+        "isBlack": false
+      },
+      {
+        "value": "Y",
+        "isBlack": false
+      }
+    ],
+    [
+      {
+        "value": "I",
+        "isBlack": false
+      },
+      {
+        "value": "M",
+        "isBlack": false
+      },
+      {
+        "value": "P",
+        "isBlack": false
+      },
+      {
+        "value": "E",
+        "isBlack": false
+      },
+      {
+        "value": "D",
+        "isBlack": false
+      },
+      {
+        "value": "E",
+        "isBlack": false
+      },
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "H",
+        "isBlack": false
+      },
+      {
+        "value": "E",
+        "isBlack": false
+      },
+      {
+        "value": "A",
+        "isBlack": false
+      },
+      {
+        "value": "P",
+        "isBlack": false
+      },
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "O",
+        "isBlack": false
+      },
+      {
+        "value": "L",
+        "isBlack": false
+      },
+      {
+        "value": "E",
+        "isBlack": false
+      }
+    ],
+    [
+      {
+        "value": "C",
+        "isBlack": false
+      },
+      {
+        "value": "L",
+        "isBlack": false
+      },
+      {
+        "value": "A",
+        "isBlack": false
+      },
+      {
+        "value": "R",
+        "isBlack": false
+      },
+      {
+        "value": "E",
+        "isBlack": false
+      },
+      {
+        "value": "T",
+        "isBlack": false
+      },
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "T",
+        "isBlack": false
+      },
+      {
+        "value": "I",
+        "isBlack": false
+      },
+      {
+        "value": "N",
+        "isBlack": false
+      },
+      {
+        "value": "T",
+        "isBlack": false
+      },
+      {
+        "value": "",
+        "isBlack": true
+      },
+      {
+        "value": "D",
+        "isBlack": false
+      },
+      {
+        "value": "I",
+        "isBlack": false
+      },
+      {
+        "value": "N",
+        "isBlack": false
+      }
+    ]
+  ],
+  "clues": {
+    "across": {
+      "1": "Stiller or 10",
+      "4": "Happy",
+      "8": "In addition",
+      "14": "Punk subculture",
+      "15": "Building blocks for kids",
+      "16": "One who uses a sword or a misspelled organ",
+      "17": "Reveal, as in a card",
+      "19": "A religious ceremony",
+      "20": "Have to pay",
+      "21": "Someone who confessed to using drugs?",
+      "23": "One who gives presents",
+      "26": "What you may put on a shaft to keep gears in place?",
+      "30": "A deaf's language",
+      "31": "Kendrick or Travis music genre",
+      "33": "Unyielding in attitude or opinion",
+      "34": "Urge something away",
+      "36": "Phat, *Phantastic",
+      "38": "One who plays online",
+      "39": "Sleeveless undershirts worn by men",
+      "43": "Gas company or something found on a beach",
+      "45": "Airport security",
+      "46": "A flying shape",
+      "49": "Looking for a job",
+      "52": "Mountain in Italy",
+      "54": "Uncooked",
+      "55": "Matched nucleotides that form DNA",
+      "57": "One of the UCs",
+      "59": "A standard for exchanging info or a form of art",
+      "60": "Sailers call for help",
+      "61": "App to doomscroll flipped",
+      "64": "High energy EM radiation wave",
+      "69": "To obstruct progress",
+      "70": "A large collection of objects",
+      "71": "Spanish exclamation",
+      "72": "Red wine from Bordeaux region",
+      "73": "Something used to darken car windows",
+      "74": "Mandalorian Djarin"
+    },
+    "down": {
+      "1": "Wager",
+      "2": "Australia waged war on these birds in 1932",
+      "3": "Neither",
+      "4": "One who emits light",
+      "5": "A mechanical advantage",
+      "6": "Just a number",
+      "7": "Sea slug or a girls name",
+      "8": "Where one travels in college",
+      "9": "Difference between expected and executed price",
+      "10": "How an artist may tag their work?",
+      "11": "What a school email may end in?",
+      "12": "An open area of grassy land or a girls name",
+      "13": "Opposite of RLR",
+      "18": "Isn't",
+      "22": "Something made by genes",
+      "23": "Giant or noble",
+      "24": "Around",
+      "25": "Things that have petals",
+      "27": "How an Iphone may introduce itself?",
+      "28": "Opposite of SSW",
+      "29": "Popular Nissan car",
+      "32": "British bar",
+      "35": "Warmer that uses diesel",
+      "37": "Word with the most meanings",
+      "40": "The other hand",
+      "41": "Triangle congruence theorem",
+      "42": "Lucky object",
+      "43": "Body of water near the golden gate bridge",
+      "44": "House managers group",
+      "47": "Something you do in the sun",
+      "48": "Female sheep",
+      "50": "Used in tennis or badminton",
+      "51": "Opposite of NEE in Caesar 12",
+      "53": "What you may input into an AI?",
+      "56": "Correct or a direction",
+      "58": "What you need to go to another country missing an eye",
+      "61": "Involuntary movement",
+      "62": "Swear to in texts",
+      "63": "Metric unit of pressure",
+      "65": "Whats missing from \"ou\" and sometimes \"y\"",
+      "66": "Lightning or fishing",
+      "67": "Shia wanted the heir to be a descendent from this person",
+      "68": "Japanese currency"
+    }
+  },
+  "timestamp": "2025-08-15T01:55:03.093Z"
+}
