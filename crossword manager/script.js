@@ -329,6 +329,17 @@ class CrosswordManager {
         e.target.value = value;
         this.grid[row][col].value = value;
     
+        // Determine if the current word just became complete
+        let completedWord = false;
+        let nextClueIndexSnapshot = null;
+        const currentWordForCompletion = this.getWordAt(row, col, this.typingDirection);
+        if (currentWordForCompletion) {
+            completedWord = currentWordForCompletion.cells.every(c => (c.value || '').trim() !== '');
+            if (completedWord) {
+                nextClueIndexSnapshot = this.activeClueIndex + 1;
+            }
+        }
+
         // Auto-advance only when a character is typedelement.textContent = ''
         if (value && this.isEditMode) {
             this.advanceToNextCell(row, col);
@@ -336,6 +347,13 @@ class CrosswordManager {
     
         this.updateClues();
         this.updateWordDetails();
+
+        // If word is complete, move/highlight to next clue; otherwise ensure highlight persists
+        if (completedWord) {
+            this.goToClueByIndex(nextClueIndexSnapshot);
+        } else {
+            this.syncActiveClueHighlight();
+        }
     
         // Keep the input editable/focused even when cleared
         if (!value) {
@@ -384,11 +402,29 @@ class CrosswordManager {
             this.grid[row][col].value = value;
             this.grid[row][col].input.value = value;
 
+            // Determine if the current word just became complete
+            let completedWord = false;
+            let nextClueIndexSnapshot = null;
+            const currentWordForCompletion = this.getWordAt(row, col, this.typingDirection);
+            if (currentWordForCompletion) {
+                completedWord = currentWordForCompletion.cells.every(c => (c.value || '').trim() !== '');
+                if (completedWord) {
+                    nextClueIndexSnapshot = this.activeClueIndex + 1;
+                }
+            }
+
             // Automatically move to the next cell like normal typing
             this.advanceToNextCell(row, col);
 
             this.updateClues();
             this.updateWordDetails();
+
+            // If word is complete, move/highlight to next clue; otherwise ensure highlight persists
+            if (completedWord) {
+                this.goToClueByIndex(nextClueIndexSnapshot);
+            } else {
+                this.syncActiveClueHighlight();
+            }
             return; // Stop further handling of this key
         }
 
@@ -423,6 +459,7 @@ class CrosswordManager {
                     
                     this.updateClues();
                     this.updateWordDetails();
+                    this.syncActiveClueHighlight();
                 } else {
                     // Move to previous cell and clear it
                     this.advanceToPreviousCell(row, col);
@@ -439,6 +476,7 @@ class CrosswordManager {
                         
                         this.updateClues();
                         this.updateWordDetails();
+                        this.syncActiveClueHighlight();
                     }
                 }
                 break;
@@ -455,6 +493,7 @@ class CrosswordManager {
                 
                 this.updateClues();
                 this.updateWordDetails();
+                this.syncActiveClueHighlight();
                 break;
             case ' ':
                 e.preventDefault();
@@ -523,6 +562,7 @@ class CrosswordManager {
             }
         }
 
+        this.updateClues();
         this.syncActiveClueHighlight();
 
 
@@ -1028,8 +1068,6 @@ class CrosswordManager {
     }
 
     syncActiveClueHighlight() {
-        // Make sure words & DOM are fresh before highlighting
-        this.updateClues();
         if (!this.selectedCell) return;
     
         const r = +this.selectedCell.element.dataset.row;
@@ -1039,18 +1077,18 @@ class CrosswordManager {
         const word = this.getWordAt(r, c, dir);
         if (!word) return;
     
-        // Find index of this word in the computed list
+        // Find index of this word
         const wordIndex = this.words[dir].findIndex(
             w => w.startRow === word.startRow && w.startCol === word.startCol
         );
         if (wordIndex === -1) return;
     
-        // Update activeClueIndex for Tab/Shift+Tab
+        // Update activeClueIndex for Tab navigation
         const order = this.getClueOrder();
         const idxInOrder = order.findIndex(o => o.direction === dir && o.index === wordIndex);
         if (idxInOrder !== -1) this.activeClueIndex = idxInOrder;
     
-        // Clear previous selection and apply to the current DOM node
+        // Clear previous selection & highlight
         document.querySelectorAll('.clue-item').forEach(el => el.classList.remove('selected'));
         const list = document.getElementById(`${dir}Clues`);
         const el = list?.querySelector(`.clue-item[data-direction="${dir}"][data-index="${wordIndex}"]`);
@@ -1059,6 +1097,7 @@ class CrosswordManager {
             el.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     }
+    
     
     
 
