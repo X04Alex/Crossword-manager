@@ -155,6 +155,15 @@ main {
     border-color: #38b2ac;
 }
 
+/* Check/Reveal feedback */
+.cell.incorrect input {
+    color: #e53e3e;
+}
+.cell.revealed {
+    background: #fffaf0;
+    border-color: #f6ad55;
+}
+
 .cell-number {
     position: absolute;
     top: 2px;

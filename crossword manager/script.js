@@ -165,8 +165,12 @@ class CrosswordManager {
 			this.isEditMode = true; // allow typing
 			this.isPlayMode = true; // mark play mode for completion checking
 			this.puzzleCompleted = false;
+            this.resetTimer();
+            this.updateTimerDisplay();
             document.getElementById('currentMode').textContent = 'Play';
             document.getElementById('toggleMode').style.display = 'none'; // hide toggle in play
+            const tools = document.getElementById('playTools');
+            if (tools) tools.style.display = 'flex';
         });
         
         
@@ -288,6 +292,21 @@ class CrosswordManager {
                 this.selectWordFromClue(e.target);
             }
         });
+
+        // Play tools
+        const tools = document.getElementById('playTools');
+        if (tools) {
+            const bind = (id, fn) => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('click', fn);
+            };
+            bind('checkCell', () => this.checkSelection('cell'));
+            bind('checkWord', () => this.checkSelection('word'));
+            bind('checkGrid', () => this.checkSelection('grid'));
+            bind('revealLetter', () => this.revealSelection('cell'));
+            bind('revealWord', () => this.revealSelection('word'));
+            bind('revealGrid', () => this.revealSelection('grid'));
+        }
     }
     
     handleCellClick(e) {
@@ -343,6 +362,8 @@ class CrosswordManager {
         // Keep the input in sync and never replace the DOM
         e.target.value = value;
         this.grid[row][col].value = value;
+        // If this cell was marked incorrect previously, clear that mark on edit
+        this.grid[row][col].element.classList.remove('incorrect');
     
         // Determine if the current word just became complete
         let completedWord = false;
@@ -419,6 +440,8 @@ class CrosswordManager {
             const value = e.key.toUpperCase();
             this.grid[row][col].value = value;
             this.grid[row][col].input.value = value;
+            // Clear incorrect mark on edit
+            this.grid[row][col].element.classList.remove('incorrect');
 
             // Determine if the current word just became complete
             let completedWord = false;
@@ -474,6 +497,8 @@ class CrosswordManager {
                     this.grid[row][col].value = '';
                     this.grid[row][col].input.value = '';
                     console.log('Cleared current cell');
+                    // Clear incorrect mark when cleared
+                    this.grid[row][col].element.classList.remove('incorrect');
                     
                     // Completely recreate the input field to ensure it's fresh
                     //this.recreateInputField(row, col);
@@ -490,6 +515,8 @@ class CrosswordManager {
                         //this.selectedCell.element.textContent = '';
                         this.selectedCell.input.value = '';
                         console.log('Cleared previous cell');
+                        // Clear incorrect mark on the cleared previous cell
+                        this.selectedCell.element.classList.remove('incorrect');
                         
                         // Recreate the input field for the selected cell
                         //const selectedRow = parseInt(this.selectedCell.element.dataset.row);
@@ -510,6 +537,8 @@ class CrosswordManager {
                 this.grid[row][col].value = '';
                 this.grid[row][col].input.value = '';
                 console.log('Cleared cell with Delete');
+                // Clear incorrect mark when cleared
+                this.grid[row][col].element.classList.remove('incorrect');
                 
                 // Completely recreate the input field to ensure it's fresh
                 //this.recreateInputField(row, col);
@@ -1427,6 +1456,8 @@ class CrosswordManager {
             if (this.isPlayMode) {
                 this.resetTimer();
                 this.startTimer();
+                const tools = document.getElementById('playTools');
+                if (tools) tools.style.display = 'flex';
             }
         }
     }
@@ -1502,6 +1533,10 @@ class CrosswordManager {
 		card.appendChild(btn);
 		overlay.appendChild(card);
 		document.body.appendChild(overlay);
+
+		// Hide tools on completion
+		const tools = document.getElementById('playTools');
+		if (tools) tools.style.display = 'none';
 	}
     
     
@@ -1586,6 +1621,86 @@ class CrosswordManager {
             return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         }
         return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+
+    // ===== Check / Reveal =====
+    getCurrentWordCells() {
+        if (!this.selectedCell) return [];
+        const r = +this.selectedCell.element.dataset.row;
+        const c = +this.selectedCell.element.dataset.col;
+        const word = this.getWordAt(r, c, this.typingDirection);
+        return word ? word.cells : [];
+    }
+
+    checkSelection(scope) {
+        if (!this.isPlayMode || !this.solutionGrid) return;
+        const clearMarks = () => {
+            document.querySelectorAll('.cell').forEach(cell => cell.classList.remove('incorrect'));
+        };
+        clearMarks();
+
+        const markIncorrect = (cells) => {
+            cells.forEach(cell => {
+                const r = +cell.element.dataset.row;
+                const c = +cell.element.dataset.col;
+                const sol = this.solutionGrid[r][c];
+                if (sol === null) return;
+                const val = (cell.value || '').toUpperCase();
+                if (val && val !== sol) {
+                    cell.element.classList.add('incorrect');
+                }
+            });
+        };
+
+        if (scope === 'cell' && this.selectedCell) {
+            markIncorrect([this.selectedCell]);
+        } else if (scope === 'word') {
+            markIncorrect(this.getCurrentWordCells());
+        } else if (scope === 'grid') {
+            const all = [];
+            for (let r = 0; r < this.gridSize; r++) {
+                for (let c = 0; c < this.gridSize; c++) {
+                    if (!this.grid[r][c].isBlack) all.push(this.grid[r][c]);
+                }
+            }
+            markIncorrect(all);
+        }
+    }
+
+    revealSelection(scope) {
+        if (!this.isPlayMode || !this.solutionGrid) return;
+        const revealCells = (cells) => {
+            cells.forEach(cell => {
+                const r = +cell.element.dataset.row;
+                const c = +cell.element.dataset.col;
+                const sol = this.solutionGrid[r][c];
+                if (sol === null) return;
+                cell.value = sol;
+                cell.input.value = sol;
+                cell.element.classList.add('revealed');
+                // Clear incorrect mark if present
+                cell.element.classList.remove('incorrect');
+            });
+        };
+
+        if (scope === 'cell' && this.selectedCell) {
+            revealCells([this.selectedCell]);
+        } else if (scope === 'word') {
+            revealCells(this.getCurrentWordCells());
+        } else if (scope === 'grid') {
+            const all = [];
+            for (let r = 0; r < this.gridSize; r++) {
+                for (let c = 0; c < this.gridSize; c++) {
+                    if (!this.grid[r][c].isBlack) all.push(this.grid[r][c]);
+                }
+            }
+            revealCells(all);
+        }
+
+        this.updateClues();
+        this.updateWordDetails();
+        this.syncActiveClueHighlight();
+        this.checkPuzzleCompletion();
     }
 }
 
