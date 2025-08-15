@@ -79,6 +79,26 @@
                         <p>Select a word to see details</p>
                     </div>
                 </div>
+
+                <div class="pattern-search">
+                    <h3>Pattern Search</h3>
+                    <div class="pattern-controls">
+                        <input type="text" id="patternInput" placeholder="Use letters and ? as wildcards (e.g., ?A?E?)" />
+                        <div class="pattern-buttons">
+                            <button id="useCurrentPattern" class="btn secondary">Use Current</button>
+                            <button id="searchPattern" class="btn primary">Search</button>
+                        </div>
+                        <label style="display:flex;align-items:center;gap:6px;color:#4a5568;font-size:14px;">
+                            <input type="checkbox" id="useOneLook" checked />
+                            Use OneLook online (via Datamuse API)
+                        </label>
+                        <div class="pattern-wordlist">
+                            <button id="loadWordList" class="btn">Load Word List</button>
+                            <span id="wordListStatus" style="margin-left:8px;color:#4a5568;">No list loaded</span>
+                        </div>
+                    </div>
+                    <div id="patternResults" class="pattern-results"></div>
+                </div>
             </div>
         </main>
     </div>

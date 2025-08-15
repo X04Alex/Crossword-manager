@@ -290,6 +290,46 @@ main {
     font-style: italic;
 }
 
+.pattern-search {
+    margin-top: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+.pattern-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.pattern-controls input[type="text"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+.pattern-buttons {
+    display: flex;
+    gap: 8px;
+}
+.pattern-results {
+    margin-top: 12px;
+    max-height: 220px;
+    overflow-y: auto;
+    background: #f7fafc;
+    border-radius: 8px;
+    padding: 8px;
+    border: 1px solid #e2e8f0;
+}
+.pattern-result-item {
+    padding: 6px 8px;
+    border-bottom: 1px solid #edf2f7;
+    cursor: pointer;
+}
+.pattern-result-item:hover {
+    background: #edf2f7;
+}
+
 .word-detail {
     margin-bottom: 10px;
 }

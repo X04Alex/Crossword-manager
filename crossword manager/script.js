@@ -307,6 +307,76 @@ class CrosswordManager {
             bind('revealWord', () => this.revealSelection('word'));
             bind('revealGrid', () => this.revealSelection('grid'));
         }
+
+        // Pattern search UI
+        const patternInput = document.getElementById('patternInput');
+        const patternResults = document.getElementById('patternResults');
+        const wordListStatus = document.getElementById('wordListStatus');
+        const useCurrentBtn = document.getElementById('useCurrentPattern');
+        const searchBtn = document.getElementById('searchPattern');
+        const loadWordListBtn = document.getElementById('loadWordList');
+        const useOneLookCheckbox = document.getElementById('useOneLook');
+
+        if (loadWordListBtn) {
+            loadWordListBtn.addEventListener('click', async () => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.txt';
+                input.onchange = (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const text = e.target.result || '';
+                            this.patternWordList = text
+                                .split(/\r?\n/)
+                                .map(s => s.trim().toUpperCase())
+                                .filter(Boolean);
+                            if (wordListStatus) {
+                                wordListStatus.textContent = `Loaded ${this.patternWordList.length} words`;
+                            }
+                        };
+                        reader.readAsText(file);
+                    }
+                };
+                input.click();
+            });
+        }
+
+        if (useCurrentBtn) {
+            useCurrentBtn.addEventListener('click', () => {
+                const cells = this.getCurrentWordCells();
+                if (!cells.length) return;
+                const pattern = cells.map(cell => (cell.value ? cell.value.toUpperCase() : '?')).join('');
+                if (patternInput) patternInput.value = pattern;
+            });
+        }
+
+        if (searchBtn) {
+            searchBtn.addEventListener('click', async () => {
+                if (!patternInput || !patternResults) return;
+                const pattern = (patternInput.value || '').trim().toUpperCase();
+                if (!pattern) {
+                    patternResults.innerHTML = '<div style="color:#e53e3e">Enter a pattern</div>';
+                    return;
+                }
+                const useOneLook = !!(useOneLookCheckbox && useOneLookCheckbox.checked);
+                let matches = [];
+                if (useOneLook) {
+                    patternResults.innerHTML = '<div style="color:#718096">Searching OneLook…</div>';
+                    try {
+                        matches = await this.searchOneLook(pattern);
+                    } catch (err) {
+                        console.error('OneLook search failed', err);
+                        matches = [];
+                    }
+                } else {
+                    const regex = this.convertPatternToRegex(pattern);
+                    matches = this.searchPattern(regex, pattern.length);
+                }
+                this.renderPatternResults(matches);
+            });
+        }
     }
     
     handleCellClick(e) {
@@ -1701,6 +1771,83 @@ class CrosswordManager {
         this.updateWordDetails();
         this.syncActiveClueHighlight();
         this.checkPuzzleCompletion();
+    }
+
+    // ===== Pattern Search =====
+    convertPatternToRegex(pattern) {
+        // ? matches one letter A-Z; letters are fixed; ignore non A-Z/?
+        const safe = pattern.replace(/[^A-Z?]/g, '').replace(/\?/g, '[A-Z]');
+        return new RegExp(`^${safe}$`, 'i');
+    }
+
+    searchPattern(regex, length) {
+        // Use loaded word list if available; otherwise derive from grid entries
+        let candidates = [];
+        if (Array.isArray(this.patternWordList) && this.patternWordList.length > 0) {
+            candidates = this.patternWordList;
+        } else {
+            const set = new Set();
+            for (const dir of ['across', 'down']) {
+                for (const w of this.words[dir]) {
+                    set.add(w.word.replace(/\s/g, '').toUpperCase());
+                }
+            }
+            candidates = Array.from(set);
+        }
+        return candidates.filter(w => w.length === length && regex.test(w));
+    }
+
+    renderPatternResults(matches) {
+        const el = document.getElementById('patternResults');
+        if (!el) return;
+        if (!matches || matches.length === 0) {
+            el.innerHTML = '<div style="color:#718096">No matches</div>';
+            return;
+        }
+        el.innerHTML = matches
+            .slice(0, 500)
+            .map(w => `<div class="pattern-result-item" data-word="${w}">${w}</div>`) 
+            .join('');
+
+        // Click a result to fill current word (play or edit)
+        el.querySelectorAll('.pattern-result-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const word = item.getAttribute('data-word') || '';
+                const cells = this.getCurrentWordCells();
+                if (!cells.length) return;
+                for (let i = 0; i < cells.length && i < word.length; i++) {
+                    const letter = word[i].toUpperCase();
+                    cells[i].value = letter;
+                    cells[i].input.value = letter;
+                    cells[i].element.classList.remove('incorrect');
+                }
+                this.updateClues();
+                this.updateWordDetails();
+                this.syncActiveClueHighlight();
+                this.checkPuzzleCompletion();
+            });
+        });
+    }
+
+    async searchOneLook(pattern) {
+        // Convert ? to ? for OneLook's pattern; keep letters as-is
+        // Use Datamuse API compatible endpoint for wildcard matching
+        // We'll call: https://api.datamuse.com/words?sp=PATTERN&max=500
+        const sp = encodeURIComponent(pattern.replace(/[^A-Z?]/g, '').toLowerCase());
+        const url = `https://api.datamuse.com/words?sp=${sp}&max=500`;
+        const resp = await fetch(url, { mode: 'cors' });
+        if (!resp.ok) {
+            throw new Error(`HTTP ${resp.status}`);
+        }
+        const data = await resp.json();
+        // Data items like { word: 'apple', score: ..., tags: [...] }
+        // Filter exact length and alphabetic words, uppercase
+        return data
+            .map(d => (d && d.word ? d.word : ''))
+            .filter(Boolean)
+            .map(w => w.toUpperCase())
+            .filter(w => w.length === pattern.replace(/[^A-Z?]/g, '').length)
+            .filter(w => /^[A-Z]+$/.test(w));
     }
 }
 
