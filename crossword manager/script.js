@@ -1422,6 +1422,12 @@ class CrosswordManager {
             }
     
             this.updateClues();
+
+            // Start timer when entering play mode after load
+            if (this.isPlayMode) {
+                this.resetTimer();
+                this.startTimer();
+            }
         }
     }
 
@@ -1442,6 +1448,7 @@ class CrosswordManager {
 
 		this.puzzleCompleted = true;
 		this.showCompletionOverlay();
+		this.stopTimer();
 	}
 
 	showCompletionOverlay() {
@@ -1530,6 +1537,55 @@ class CrosswordManager {
         });
         
         return text;
+    }
+
+    // ===== Timer helpers =====
+    startTimer() {
+        if (this.timerRunning) return;
+        this.timerRunning = true;
+        this.timerStartEpoch = Date.now() - this.timerElapsedMs;
+        this.timerIntervalId = setInterval(() => this.tickTimer(), 1000);
+        this.tickTimer();
+    }
+
+    stopTimer() {
+        if (!this.timerRunning) return;
+        this.timerRunning = false;
+        clearInterval(this.timerIntervalId);
+        this.timerIntervalId = null;
+        this.tickTimer();
+    }
+
+    resetTimer() {
+        this.timerElapsedMs = 0;
+        if (this.timerRunning) {
+            this.timerStartEpoch = Date.now();
+        }
+        this.updateTimerDisplay();
+    }
+
+    tickTimer() {
+        if (this.timerRunning) {
+            this.timerElapsedMs = Date.now() - this.timerStartEpoch;
+        }
+        this.updateTimerDisplay();
+    }
+
+    updateTimerDisplay() {
+        const el = document.getElementById('timerDisplay');
+        if (!el) return;
+        el.textContent = this.formatTime(this.timerElapsedMs);
+    }
+
+    formatTime(ms) {
+        const totalSeconds = Math.floor(ms / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        if (hours > 0) {
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     }
 }
 

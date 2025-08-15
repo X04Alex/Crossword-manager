@@ -1,0 +1,95 @@
+Enhancement roadmap for Crossword Manager
+
+High-impact features
+1) Timer + Stats
+   - In-play timer (start on Play, stop on completion), best time, average time, session time.
+   - Progress % (filled vs total white cells), current streak (for daily puzzles).
+
+2) Check / Reveal tools
+   - Check cell / word / full grid; highlight incorrect entries.
+   - Reveal letter / word; optional penalty indicator; undo support after reveal.
+
+3) Autosave
+   - Persist in-progress grid and settings to localStorage.
+   - Restore on reload; handle versioning and puzzle identity (hash).
+
+4) Undo / Redo
+   - Track edits (cell value changes, black toggles, navigation); multi-step undo/redo.
+   - Keyboard shortcuts (Cmd/Ctrl+Z / Shift+Cmd/Ctrl+Z).
+
+5) Mobile usability
+   - Larger tap targets; tap to select, double-tap to toggle direction.
+   - Long-press quick menu for Check/Reveal; on-screen keyboard helpers.
+
+Play experience
+6) Pencil vs Pen mode
+   - Tentative entries styled differently; convert pencil to pen on confirmation.
+
+7) Notes per clue
+   - Small textarea for jotting thoughts, anagrams, cross refs; persisted with autosave.
+
+8) Rebus support
+   - Allow multi-letter cells via a small modal or inline editor; render compactly.
+
+9) Navigation upgrades
+   - Home/End jump to word edges; Ctrl/Cmd+Arrow to previous/next word.
+   - Enter key jumps to next clue; Shift+Enter to previous.
+
+10) Cross-references
+    - Detect mentions like "see 12-Down"; clicking jumps and temp-highlights referenced word.
+
+Accessibility & theming
+11) ARIA & keyboard
+    - Announce selection (row, col, direction, clue). Live region for feedback.
+    - Ensure focus order and arrow navigation are consistent.
+
+12) Themes
+    - High-contrast and dark mode; theme toggle; save preference.
+
+Builder tools (Edit mode)
+13) Symmetry controls
+    - Enforce 180°/mirror symmetry; live indicator and toggle.
+
+14) Quality checks
+    - Connectivity check (white cells reachable), word count, black-square %, pangram flag.
+
+15) Pattern search & word suggestions
+    - Pattern matching (e.g., ?A?E?) with wordlists; frequency scores; part-of-speech tags.
+
+16) Assisted fill
+    - Suggest fills based on crossings; lock-in selective choices; backtracking engine.
+
+17) Clue editor upgrades
+    - Inline editing in list; clue difficulty tags; clue-style hints (anagram, container, etc.).
+
+Sharing & export
+18) Export formats
+    - .puz / .jpz export; printable PDF with layout.
+
+19) Share progress
+    - Link-based share or emoji grid share (spoiler-free), completion summary.
+
+20) Daily puzzle & streaks
+    - Seeded daily; archive; streak tracking; calendar view.
+
+Polish & performance
+21) Completion celebration
+    - Confetti animation, sound cue (toggleable), share button.
+
+22) Performance
+    - Debounce expensive DOM updates; avoid full clue list rebuilds; virtualize long lists.
+
+Dev quality
+23) Testing
+    - Unit tests for navigation/highlighting; E2E tests (Playwright) for typing flows.
+
+24) Settings panel
+    - Centralize toggles: auto-advance, error highlighting, sounds, theme, pencil/pen.
+
+Implementation notes
+- Timer: start in Play mode, stop on completion; store elapsed time; format HH:MM:SS when >= 1h.
+- Completion: snapshot solution on entering Play; check after any edit; overlay on success.
+- Check/Reveal: utilities to compare cells with solutionGrid; non-destructive highlight.
+- Autosave: serialize grid, clues, mode, elapsed time; auto-restore by puzzle hash.
+- Undo/Redo: command stack capturing cell value, selection, direction, and grid ops.
+- Accessibility: add ARIA to cells and clues; live region for status messages.
