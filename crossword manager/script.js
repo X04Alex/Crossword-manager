@@ -6,6 +6,9 @@ class CrosswordManager {
         this.isEditMode = true;
         this.selectedCell = null;
         this.activeClueIndex = 0;
+		this.isPlayMode = false;
+		this.solutionGrid = null; // 2D array of solution letters for play mode
+		this.puzzleCompleted = false;
         this.words = {
             across: [],
             down: []
@@ -159,7 +162,9 @@ class CrosswordManager {
 
         document.getElementById('playCrossword').addEventListener('click', () => {
             this.loadCrossword(true); // true = play mode
-            this.isEditMode = true; // allow typing
+			this.isEditMode = true; // allow typing
+			this.isPlayMode = true; // mark play mode for completion checking
+			this.puzzleCompleted = false;
             document.getElementById('currentMode').textContent = 'Play';
             document.getElementById('toggleMode').style.display = 'none'; // hide toggle in play
         });
@@ -364,6 +369,9 @@ class CrosswordManager {
         } else {
             this.syncActiveClueHighlight();
         }
+
+        // In play mode, after any input change, check completion
+        this.checkPuzzleCompletion();
     
         // Keep the input editable/focused even when cleared
         if (!value) {
@@ -435,6 +443,9 @@ class CrosswordManager {
             } else {
                 this.syncActiveClueHighlight();
             }
+
+            // In play mode, after any input change, check completion
+            this.checkPuzzleCompletion();
             return; // Stop further handling of this key
         }
 
@@ -470,6 +481,7 @@ class CrosswordManager {
                     this.updateClues();
                     this.updateWordDetails();
                     this.syncActiveClueHighlight();
+                    this.checkPuzzleCompletion();
                 } else {
                     // Move to previous cell and clear it
                     this.advanceToPreviousCell(row, col);
@@ -487,6 +499,7 @@ class CrosswordManager {
                         this.updateClues();
                         this.updateWordDetails();
                         this.syncActiveClueHighlight();
+                        this.checkPuzzleCompletion();
                     }
                 }
                 break;
@@ -504,6 +517,7 @@ class CrosswordManager {
                 this.updateClues();
                 this.updateWordDetails();
                 this.syncActiveClueHighlight();
+                this.checkPuzzleCompletion();
                 break;
             case ' ':
                 e.preventDefault();
@@ -1361,6 +1375,18 @@ class CrosswordManager {
     
     loadGridData(data, playMode = false) {
         if (data.grid && data.grid.length === this.gridSize) {
+			// Set mode and prepare solution grid if playing
+			this.isPlayMode = !!playMode;
+			this.puzzleCompleted = false;
+			if (this.isPlayMode) {
+				// Snapshot the solution from the loaded data
+				this.solutionGrid = data.grid.map(row =>
+					row.map(cell => cell.isBlack ? null : ((cell.value || '').toUpperCase()))
+				);
+			} else {
+				this.solutionGrid = null;
+			}
+
             for (let row = 0; row < this.gridSize; row++) {
                 for (let col = 0; col < this.gridSize; col++) {
                     const cellData = data.grid[row][col];
@@ -1385,9 +1411,9 @@ class CrosswordManager {
                         cell.input.style.visibility = 'visible';
                     }
     
-                    // In play mode, leave it blank
-                    cell.value = playMode ? '' : (cellData.value || '');
-                    cell.input.value = playMode ? '' : (cellData.value || '');
+					// In play mode, leave it blank; otherwise restore saved letters
+					cell.value = playMode ? '' : (cellData.value || '');
+					cell.input.value = playMode ? '' : (cellData.value || '');
                 }
             }
     
@@ -1398,6 +1424,78 @@ class CrosswordManager {
             this.updateClues();
         }
     }
+
+	// Check if the user has completed the puzzle correctly (play mode only)
+	checkPuzzleCompletion() {
+		if (!this.isPlayMode || !this.solutionGrid || this.puzzleCompleted) return;
+
+		for (let r = 0; r < this.gridSize; r++) {
+			for (let c = 0; c < this.gridSize; c++) {
+				const sol = this.solutionGrid[r][c];
+				if (sol === null) continue; // black square
+				const val = (this.grid[r][c].value || '').toUpperCase();
+				if (!val || val !== sol) {
+					return; // not complete or incorrect yet
+				}
+			}
+		}
+
+		this.puzzleCompleted = true;
+		this.showCompletionOverlay();
+	}
+
+	showCompletionOverlay() {
+		if (document.getElementById('completionOverlay')) return;
+
+		const overlay = document.createElement('div');
+		overlay.id = 'completionOverlay';
+		overlay.style.position = 'fixed';
+		overlay.style.inset = '0';
+		overlay.style.background = 'rgba(0,0,0,0.6)';
+		overlay.style.display = 'flex';
+		overlay.style.alignItems = 'center';
+		overlay.style.justifyContent = 'center';
+		overlay.style.zIndex = '9999';
+
+		const card = document.createElement('div');
+		card.style.background = 'white';
+		card.style.borderRadius = '12px';
+		card.style.padding = '24px 28px';
+		card.style.boxShadow = '0 20px 40px rgba(0,0,0,0.2)';
+		card.style.textAlign = 'center';
+		card.style.maxWidth = '420px';
+		card.style.margin = '16px';
+
+		const title = document.createElement('div');
+		title.textContent = '🎉 Puzzle Completed!';
+		title.style.fontSize = '22px';
+		title.style.fontWeight = '700';
+		title.style.marginBottom = '8px';
+		title.style.color = '#2d3748';
+
+		const msg = document.createElement('div');
+		msg.textContent = 'Great job, you solved the crossword correctly.';
+		msg.style.fontSize = '16px';
+		msg.style.color = '#4a5568';
+		msg.style.marginBottom = '16px';
+
+		const btn = document.createElement('button');
+		btn.textContent = 'Close';
+		btn.className = 'btn primary';
+		btn.style.padding = '10px 16px';
+		btn.style.border = 'none';
+		btn.style.background = '#667eea';
+		btn.style.color = 'white';
+		btn.style.borderRadius = '8px';
+		btn.style.cursor = 'pointer';
+		btn.addEventListener('click', () => overlay.remove());
+
+		card.appendChild(title);
+		card.appendChild(msg);
+		card.appendChild(btn);
+		overlay.appendChild(card);
+		document.body.appendChild(overlay);
+	}
     
     
     exportCrossword() {
