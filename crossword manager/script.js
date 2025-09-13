@@ -18,6 +18,13 @@ class CrosswordManager {
             down: {}
         };
         
+        // Settings
+        this.settings = {
+            skipFilledLetters: false,
+            gridSize: 15
+        };
+        
+        this.loadSettings();
         this.init();
     }
     
@@ -25,6 +32,22 @@ class CrosswordManager {
         this.createGrid();
         this.setupEventListeners();
         this.updateClues();
+    }
+    
+    loadSettings() {
+        const saved = localStorage.getItem('crosswordSettings');
+        if (saved) {
+            try {
+                this.settings = { ...this.settings, ...JSON.parse(saved) };
+                this.gridSize = this.settings.gridSize || 15;
+            } catch (e) {
+                console.warn('Failed to load settings:', e);
+            }
+        }
+    }
+    
+    saveSettings() {
+        localStorage.setItem('crosswordSettings', JSON.stringify(this.settings));
     }
     
     createGrid() {
@@ -74,7 +97,7 @@ class CrosswordManager {
             }
         }
     
-        gridContainer.style.gridTemplateColumns = `repeat(${this.gridSize}, 35px)`;
+        gridContainer.style.gridTemplateColumns = `repeat(${this.gridSize}, 60px)`;
     }
     
     
@@ -270,7 +293,14 @@ class CrosswordManager {
             }
         };
         
-        // Tab switching
+        // Menu tab switching
+        document.querySelectorAll('.menu-tab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                this.switchMenuTab(e.target.dataset.tab);
+            });
+        });
+
+        // Clue tab switching
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 this.switchTab(e.target.dataset.tab);
@@ -375,6 +405,49 @@ class CrosswordManager {
                     matches = this.searchPattern(regex, pattern.length);
                 }
                 this.renderPatternResults(matches);
+            });
+        }
+
+        // Settings dropdown
+        const settingsBtn = document.getElementById('settingsBtn');
+        const settingsMenu = document.getElementById('settingsMenu');
+        
+        if (settingsBtn && settingsMenu) {
+            settingsBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                settingsMenu.classList.toggle('show');
+            });
+            
+            // Close settings menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!settingsBtn.contains(e.target) && !settingsMenu.contains(e.target)) {
+                    settingsMenu.classList.remove('show');
+                }
+            });
+        }
+
+        // Settings event listeners
+        const skipFilledLettersCheckbox = document.getElementById('skipFilledLetters');
+        if (skipFilledLettersCheckbox) {
+            // Load current setting
+            skipFilledLettersCheckbox.checked = this.settings.skipFilledLetters;
+            
+            skipFilledLettersCheckbox.addEventListener('change', (e) => {
+                this.settings.skipFilledLetters = e.target.checked;
+                this.saveSettings();
+            });
+        }
+
+        // Grid size selector
+        const gridSizeSelect = document.getElementById('gridSizeSelect');
+        if (gridSizeSelect) {
+            gridSizeSelect.value = this.gridSize;
+            gridSizeSelect.addEventListener('change', (e) => {
+                this.gridSize = parseInt(e.target.value);
+                this.settings.gridSize = this.gridSize;
+                this.createGrid();
+                this.updateClues();
+                this.saveSettings();
             });
         }
     }
@@ -698,7 +771,14 @@ class CrosswordManager {
     
             while (nextRow < this.gridSize) {
                 while (nextCol < this.gridSize && this.grid[nextRow][nextCol].isBlack) nextCol++;
-                if (nextCol < this.gridSize) break;
+                if (nextCol < this.gridSize) {
+                    // If skip filled letters is enabled, skip over cells that already have letters
+                    if (this.settings.skipFilledLetters && this.grid[nextRow][nextCol].value) {
+                        nextCol++;
+                        continue;
+                    }
+                    break;
+                }
                 nextRow++;
                 nextCol = 0;
             }
@@ -710,7 +790,14 @@ class CrosswordManager {
     
             while (nextCol < this.gridSize) {
                 while (nextRow < this.gridSize && this.grid[nextRow][nextCol].isBlack) nextRow++;
-                if (nextRow < this.gridSize) break;
+                if (nextRow < this.gridSize) {
+                    // If skip filled letters is enabled, skip over cells that already have letters
+                    if (this.settings.skipFilledLetters && this.grid[nextRow][nextCol].value) {
+                        nextRow++;
+                        continue;
+                    }
+                    break;
+                }
                 nextCol++;
                 nextRow = 0;
             }
@@ -1407,6 +1494,20 @@ class CrosswordManager {
         this.updateClues();
     }
     
+    switchMenuTab(tab) {
+        // Update menu tab buttons
+        document.querySelectorAll('.menu-tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+        
+        // Update menu tab content
+        document.querySelectorAll('.menu-tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        document.getElementById(`${tab}Tab`).classList.add('active');
+    }
+
     switchTab(tab) {
         // Update tab buttons
         document.querySelectorAll('.tab-btn').forEach(btn => {

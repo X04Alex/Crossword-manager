@@ -10,11 +10,44 @@
     <div class="container">
         <header>
             <h1>Crossword Manager</h1>
-            <div class="controls">
-                <button id="newCrossword" class="btn primary">New Crossword</button>
-                <button id="saveCrossword" class="btn secondary">Save</button>
-                <button id="loadCrossword" class="btn secondary">Load</button>
-                <button id="exportCrossword" class="btn secondary">Export</button>
+            <div class="header-controls">
+                <div class="main-controls">
+                    <button id="newCrossword" class="btn primary">New</button>
+                    <button id="saveCrossword" class="btn secondary">Save</button>
+                    <button id="loadCrossword" class="btn secondary">Load</button>
+                    <button id="exportCrossword" class="btn secondary">Export</button>
+                </div>
+                <div class="settings-dropdown">
+                    <button id="settingsBtn" class="btn settings-btn">⚙️</button>
+                    <div id="settingsMenu" class="settings-menu">
+                        <div class="settings-section">
+                            <h4>Typing</h4>
+                            <label>
+                                <input type="checkbox" id="skipFilledLetters" />
+                                Skip filled letters when typing
+                            </label>
+                        </div>
+                        <div class="settings-section">
+                            <h4>Display</h4>
+                            <label>
+                                <input type="checkbox" id="showNumbers" checked />
+                                Show cell numbers
+                            </label>
+                        </div>
+                        <div class="settings-section">
+                            <h4>Grid</h4>
+                            <label>
+                                Grid Size: 
+                                <select id="gridSizeSelect">
+                                    <option value="13">13×13</option>
+                                    <option value="15" selected>15×15</option>
+                                    <option value="17">17×17</option>
+                                    <option value="21">21×21</option>
+                                </select>
+                            </label>
+                        </div>
+                    </div>
+                </div>
             </div>
         </header>
         
@@ -52,52 +85,60 @@
             </div>
             
             <div class="sidebar">
-                <div class="clues-section">
-                    <h3>Clues</h3>
-                    <div class="clue-tabs">
-                        <button class="tab-btn active" data-tab="across">Across</button>
-                        <button class="tab-btn" data-tab="down">Down</button>
-                    </div>
-                    <div class="clue-content">
-                        <div id="acrossClues" class="clue-list active">
-                            <!-- Across clues will be populated here -->
-                        </div>
-                        <div id="downClues" class="clue-list">
-                            <!-- Down clues will be populated here -->
-                        </div>
-                    </div>
+                <div class="menu-tabs">
+                    <button class="menu-tab-btn active" data-tab="clues">Clues</button>
+                    <button class="menu-tab-btn" data-tab="tools">Word Tools</button>
                 </div>
                 
-                <div class="word-info">
-                    <h3>Word Information</h3>
-                    <div class="clue-editor">
-                        <h3>Edit Clue</h3>
-                        <input type="text" id="clueInput" placeholder="Enter clue here" />
-                        <button id="saveClue" class="btn secondary">Save Clue</button>
-                    </div>                    
-                    <div id="wordDetails">
-                        <p>Select a word to see details</p>
-                    </div>
-                </div>
-
-                <div class="pattern-search">
-                    <h3>Pattern Search</h3>
-                    <div class="pattern-controls">
-                        <input type="text" id="patternInput" placeholder="Use letters and ? as wildcards (e.g., ?A?E?)" />
-                        <div class="pattern-buttons">
-                            <button id="useCurrentPattern" class="btn secondary">Use Current</button>
-                            <button id="searchPattern" class="btn primary">Search</button>
+                <div class="menu-content">
+                    <!-- Clues Tab -->
+                    <div id="cluesTab" class="menu-tab-content active">
+                        <div class="clue-tabs">
+                            <button class="tab-btn active" data-tab="across">Across</button>
+                            <button class="tab-btn" data-tab="down">Down</button>
                         </div>
-                        <label style="display:flex;align-items:center;gap:6px;color:#4a5568;font-size:14px;">
-                            <input type="checkbox" id="useOneLook" checked />
-                            Use OneLook online (via Datamuse API)
-                        </label>
-                        <div class="pattern-wordlist">
-                            <button id="loadWordList" class="btn">Load Word List</button>
-                            <span id="wordListStatus" style="margin-left:8px;color:#4a5568;">No list loaded</span>
+                        <div class="clue-content">
+                            <div id="acrossClues" class="clue-list active">
+                                <!-- Across clues will be populated here -->
+                            </div>
+                            <div id="downClues" class="clue-list">
+                                <!-- Down clues will be populated here -->
+                            </div>
+                        </div>
+                        
+                        <div class="clue-editor">
+                            <h4>Edit Clue</h4>
+                            <input type="text" id="clueInput" placeholder="Enter clue here" />
+                            <button id="saveClue" class="btn secondary">Save Clue</button>
+                        </div>
+                        
+                        <div id="wordDetails">
+                            <p>Select a word to see details</p>
                         </div>
                     </div>
-                    <div id="patternResults" class="pattern-results"></div>
+                    
+                    <!-- Word Tools Tab -->
+                    <div id="toolsTab" class="menu-tab-content">
+                        <div class="pattern-search">
+                            <h4>Pattern Search</h4>
+                            <div class="pattern-controls">
+                                <input type="text" id="patternInput" placeholder="Use letters and ? as wildcards (e.g., ?A?E?)" />
+                                <div class="pattern-buttons">
+                                    <button id="useCurrentPattern" class="btn secondary">Use Current</button>
+                                    <button id="searchPattern" class="btn primary">Search</button>
+                                </div>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="useOneLook" checked />
+                                    Use OneLook online (via Datamuse API)
+                                </label>
+                                <div class="pattern-wordlist">
+                                    <button id="loadWordList" class="btn">Load Word List</button>
+                                    <span id="wordListStatus">No list loaded</span>
+                                </div>
+                            </div>
+                            <div id="patternResults" class="pattern-results"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
