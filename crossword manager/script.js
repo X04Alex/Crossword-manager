@@ -97,9 +97,8 @@ class CrosswordManager {
             }
         }
     
-        const cellSize = Math.min(60, (window.innerWidth - 400) / this.gridSize);
-        gridContainer.style.gridTemplateColumns = `repeat(${this.gridSize}, ${cellSize}px)`;
-        gridContainer.style.gridTemplateRows = `repeat(${this.gridSize}, ${cellSize}px)`;
+        gridContainer.style.gridTemplateColumns = `repeat(${this.gridSize}, 60px)`;
+        gridContainer.style.gridTemplateRows = `repeat(${this.gridSize}, 60px)`;
     }
     
     
@@ -453,10 +452,6 @@ class CrosswordManager {
             });
         }
 
-        // Window resize listener to update grid size
-        window.addEventListener('resize', () => {
-            this.createGrid();
-        });
     }
     
     handleCellClick(e) {
