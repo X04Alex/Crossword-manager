@@ -50,6 +50,36 @@ class CrosswordManager {
         localStorage.setItem('crosswordSettings', JSON.stringify(this.settings));
     }
     
+    updateGridSize() {
+        // Calculate available space (accounting for sidebar and padding)
+        const availableWidth = window.innerWidth - 320; // sidebar + padding
+        const availableHeight = window.innerHeight - 120; // header + padding
+        
+        // Calculate cell size to fit the grid
+        const cellSize = Math.min(
+            Math.floor(availableWidth / this.gridSize),
+            Math.floor(availableHeight / this.gridSize),
+            80 // maximum cell size
+        );
+        
+        // Ensure minimum cell size
+        const finalCellSize = Math.max(cellSize, 25);
+        
+        // Calculate proportional font size
+        const fontSize = Math.max(Math.floor(finalCellSize * 0.4), 12);
+        
+        // Set CSS custom properties
+        document.documentElement.style.setProperty('--cell-size', `${finalCellSize}px`);
+        document.documentElement.style.setProperty('--font-size', `${fontSize}px`);
+        
+        // Update grid template
+        const gridContainer = document.getElementById('crosswordGrid');
+        if (gridContainer) {
+            gridContainer.style.gridTemplateColumns = `repeat(${this.gridSize}, ${finalCellSize}px)`;
+            gridContainer.style.gridTemplateRows = `repeat(${this.gridSize}, ${finalCellSize}px)`;
+        }
+    }
+    
     createGrid() {
         const gridContainer = document.getElementById('crosswordGrid');
         gridContainer.innerHTML = '';
@@ -97,8 +127,7 @@ class CrosswordManager {
             }
         }
     
-        gridContainer.style.gridTemplateColumns = `repeat(${this.gridSize}, 60px)`;
-        gridContainer.style.gridTemplateRows = `repeat(${this.gridSize}, 60px)`;
+        this.updateGridSize();
     }
     
     
@@ -451,6 +480,11 @@ class CrosswordManager {
                 this.saveSettings();
             });
         }
+
+        // Window resize listener to update grid size
+        window.addEventListener('resize', () => {
+            this.updateGridSize();
+        });
 
     }
     
