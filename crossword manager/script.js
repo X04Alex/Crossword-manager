@@ -24,6 +24,9 @@ class CrosswordManager {
             gridSize: 15
         };
         
+        // Auto-fill module (will be initialized after autofill.js loads)
+        this.autoFill = null;
+        
         this.loadSettings();
         this.init();
     }
@@ -32,6 +35,8 @@ class CrosswordManager {
         this.createGrid();
         this.setupEventListeners();
         this.updateClues();
+        this.loadDefaultWordList();
+        this.initializeAutoFill();
     }
     
     loadSettings() {
@@ -197,20 +202,8 @@ class CrosswordManager {
             this.exportCrossword();
         });
         
-        document.getElementById('toggleMode').addEventListener('click', () => {
-            this.toggleMode();
-        });
-        
         document.getElementById('clearGrid').addEventListener('click', () => {
             this.clearGrid();
-        });
-        
-        document.getElementById('fillRandom').addEventListener('click', () => {
-            this.fillRandom();
-        });
-        
-        document.getElementById('addBlackSquares').addEventListener('click', () => {
-            this.showBlackSquareInstructions();
         });
 
         document.getElementById('playCrossword').addEventListener('click', () => {
@@ -221,7 +214,6 @@ class CrosswordManager {
             this.resetTimer();
             this.updateTimerDisplay();
             document.getElementById('currentMode').textContent = 'Play';
-            document.getElementById('toggleMode').style.display = 'none'; // hide toggle in play
             const tools = document.getElementById('playTools');
             if (tools) tools.style.display = 'flex';
         });
@@ -379,28 +371,23 @@ class CrosswordManager {
 
         if (loadWordListBtn) {
             loadWordListBtn.addEventListener('click', async () => {
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.accept = '.txt';
-                input.onchange = (e) => {
-                    const file = e.target.files[0];
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onload = (e) => {
-                            const text = e.target.result || '';
-                            this.patternWordList = text
-                                .split(/\r?\n/)
-                                .map(s => s.trim().toUpperCase())
-                                .filter(Boolean);
-                            if (wordListStatus) {
-                                wordListStatus.textContent = `Loaded ${this.patternWordList.length} words`;
-                            }
-                        };
-                        reader.readAsText(file);
+                console.log('Load Dictionary button clicked');
+                // First try to load the default dictionary automatically
+                if (this.patternWordList.length === 0) {
+                    console.log('Pattern word list is empty, trying to load default dictionary');
+                    await this.loadDefaultWordList();
+                    if (this.patternWordList.length > 0) {
+                        console.log('Successfully loaded default dictionary');
+                        return; // Successfully loaded default dictionary
                     }
-                };
-                input.click();
+                }
+                
+                // If default loading failed, show file picker
+                console.log('Triggering file picker');
+                this.triggerFilePicker();
             });
+        } else {
+            console.error('Load Dictionary button not found!');
         }
 
         if (useCurrentBtn) {
@@ -431,8 +418,9 @@ class CrosswordManager {
                         matches = [];
                     }
                 } else {
+                    patternResults.innerHTML = '<div style="color:#718096">Searching word list…</div>';
                     const regex = this.convertPatternToRegex(pattern);
-                    matches = this.searchPattern(regex, pattern.length);
+                    matches = await this.searchPattern(regex, pattern.length);
                 }
                 this.renderPatternResults(matches);
             });
@@ -485,6 +473,14 @@ class CrosswordManager {
         window.addEventListener('resize', () => {
             this.updateGridSize();
         });
+
+        // Auto Fill button
+        const autoFillBtn = document.getElementById('autoFillGrid');
+        if (autoFillBtn) {
+            autoFillBtn.addEventListener('click', () => {
+                this.autoFillGrid();
+            });
+        }
 
     }
     
@@ -979,17 +975,6 @@ class CrosswordManager {
         this.selectCell(newRow, newCol);
     }
     
-    showBlackSquareInstructions() {
-        const instructions = document.getElementById('blackSquareInstructions');
-        instructions.style.display = 'inline';
-        
-        // Hide after 5 seconds
-        setTimeout(() => {
-            instructions.style.display = 'none';
-        }, 5000);
-        
-        alert('Black Square Instructions:\n\n• Right-click on any cell to make it black\n• Press Space bar on a selected cell to toggle black\n• Black squares block words and cannot be filled\n• Right-click again to make a black square white again');
-    }
     
     testDelete() {
         if (this.selectedCell) {
@@ -1467,16 +1452,6 @@ class CrosswordManager {
 
     }
     
-    toggleMode() {
-        this.isEditMode = !this.isEditMode;
-        document.getElementById('currentMode').textContent = this.isEditMode ? 'Edit' : 'View';
-        document.getElementById('toggleMode').textContent = this.isEditMode ? 'View Mode' : 'Edit Mode';
-        
-        // Update input fields
-        document.querySelectorAll('.cell input').forEach(input => {
-            input.readOnly = !this.isEditMode;
-        });
-    }
     
     clearGrid() {
         if (confirm('Are you sure you want to clear the entire grid?')) {
@@ -1498,37 +1473,6 @@ class CrosswordManager {
         }
     }
     
-    fillRandom() {
-        const sampleWords = [
-            'HELLO', 'WORLD', 'PUZZLE', 'CROSSWORD', 'GAME', 'FUN', 'PLAY', 'SOLVE',
-            'BRAIN', 'TEASER', 'LOGIC', 'THINK', 'SMART', 'CLEVER', 'WISE', 'QUICK',
-            'FAST', 'SLOW', 'EASY', 'HARD', 'DIFFICULT', 'SIMPLE', 'BASIC', 'ADVANCED'
-        ];
-        
-        let wordIndex = 0;
-        
-        for (let row = 0; row < this.gridSize; row++) {
-            for (let col = 0; col < this.gridSize; col++) {
-                if (wordIndex < sampleWords.length) {
-                    const word = sampleWords[wordIndex];
-                    if (col + word.length <= this.gridSize) {
-                        for (let i = 0; i < word.length; i++) {
-                            const c = this.grid[row][col + i];
-                            // Ensure input is attached
-                            if (c.input && !c.element.contains(c.input)) c.element.appendChild(c.input);
-                            c.value = word[i];
-                            c.input.value = word[i];
-}
-
-                        wordIndex++;
-                        col += word.length;
-                    }
-                }
-            }
-        }
-        
-        this.updateClues();
-    }
     
     switchMenuTab(tab) {
         // Update menu tab buttons
@@ -1917,7 +1861,12 @@ class CrosswordManager {
         return new RegExp(`^${safe}$`, 'i');
     }
 
-    searchPattern(regex, length) {
+    async searchPattern(regex, length) {
+        // Ensure dictionary is loaded
+        if (this.patternWordList.length === 0) {
+            await this.ensureDictionaryLoaded();
+        }
+        
         // Use loaded word list if available; otherwise derive from grid entries
         let candidates = [];
         if (Array.isArray(this.patternWordList) && this.patternWordList.length > 0) {
@@ -1931,7 +1880,34 @@ class CrosswordManager {
             }
             candidates = Array.from(set);
         }
-        return candidates.filter(w => w.length === length && regex.test(w));
+        
+        // Filter and score words
+        const matches = candidates
+            .filter(w => w.length === length && regex.test(w))
+            .map(word => {
+                // Extract score from word list format (word:score or word;score)
+                const colonParts = word.split(':');
+                const semicolonParts = word.split(';');
+                
+                if (colonParts.length === 2) {
+                    return {
+                        word: colonParts[0].toUpperCase(),
+                        score: parseInt(colonParts[1]) || 0
+                    };
+                } else if (semicolonParts.length === 2) {
+                    return {
+                        word: semicolonParts[0].toUpperCase(),
+                        score: parseInt(semicolonParts[1]) || 0
+                    };
+                }
+                return {
+                    word: word.toUpperCase(),
+                    score: 0
+                };
+            })
+            .sort((a, b) => b.score - a.score); // Sort by score (highest first)
+        
+        return matches;
     }
 
     renderPatternResults(matches) {
@@ -1941,9 +1917,15 @@ class CrosswordManager {
             el.innerHTML = '<div style="color:#718096">No matches</div>';
             return;
         }
+        
         el.innerHTML = matches
-            .slice(0, 500)
-            .map(w => `<div class="pattern-result-item" data-word="${w}">${w}</div>`) 
+            .slice(0, 100) // Show top 100 results
+            .map(match => {
+                const word = match.word || match;
+                const score = match.score !== undefined ? match.score : '';
+                const scoreDisplay = score ? ` <span style="color:#666;font-size:11px;">(${score})</span>` : '';
+                return `<div class="pattern-result-item" data-word="${word}">${word}${scoreDisplay}</div>`;
+            })
             .join('');
 
         // Click a result to fill current word (play or edit)
@@ -1985,6 +1967,256 @@ class CrosswordManager {
             .map(w => w.toUpperCase())
             .filter(w => w.length === pattern.replace(/[^A-Z?]/g, '').length)
             .filter(w => /^[A-Z]+$/.test(w));
+    }
+
+    // Auto-fill the grid using the dedicated module
+    async autoFillGrid() {
+        if (!this.autoFill) {
+            alert('Auto-fill module not available. Please refresh the page.');
+            return;
+        }
+
+        // Ensure dictionary is loaded first
+        if (this.patternWordList.length === 0) {
+            await this.ensureDictionaryLoaded();
+        }
+
+        if (!Array.isArray(this.patternWordList) || this.patternWordList.length === 0) {
+            alert('Please load a word list first to use auto-fill.');
+            return;
+        }
+
+        // Set the word list in the auto-fill module
+        this.autoFill.setWordList(this.patternWordList);
+
+        // Show grid statistics
+        const stats = this.autoFill.getGridStats();
+        console.log(`Grid stats: ${stats.filledWords}/${stats.totalWords} words filled (${stats.completionPercentage}%)`);
+
+        if (stats.emptyWords === 0) {
+            alert('Grid is already complete!');
+            return;
+        }
+
+        // Show progress
+        const progressMsg = `Starting auto-fill...\n${stats.emptyWords} words to fill\n${stats.filledWords}/${stats.totalWords} already complete`;
+        console.log(progressMsg);
+
+        try {
+            const result = await this.autoFill.autoFillGrid();
+            
+            if (result.success) {
+                alert(result.message);
+                // Update the UI
+                this.updateClues();
+                this.updateWordDetails();
+                this.checkPuzzleCompletion();
+            } else {
+                alert(result.message);
+            }
+        } catch (error) {
+            console.error('Auto-fill error:', error);
+            alert('Auto-fill failed: ' + error.message);
+        }
+    }
+
+
+    async loadDefaultWordList() {
+        console.log('=== DICTIONARY LOADING DEBUG ===');
+        console.log('Current working directory:', window.location.href);
+        console.log('Attempting to load spreadthewordlist.dict...');
+        
+        // Check if we're running from a server (http/https) or local file (file://)
+        const isLocalFile = window.location.protocol === 'file:';
+        
+        if (isLocalFile) {
+            console.log('Running from local file - skipping automatic load');
+            this.updateWordListStatus('Local file mode - dictionary will load when needed');
+            return;
+        }
+        
+        try {
+            // Try to load the dictionary file from server
+            const response = await fetch('./spreadthewordlist.dict');
+            console.log('Fetch response status:', response.status);
+            console.log('Fetch response ok:', response.ok);
+            
+            if (!response.ok) {
+                console.log('Dictionary file not found at ./spreadthewordlist.dict');
+                this.patternWordList = [];
+                this.updateWordListStatus('Dictionary not found - click "Load Dictionary" to select file');
+                return;
+            }
+            
+            const text = await response.text();
+            console.log('Raw text length:', text.length);
+            console.log('First 200 characters:', text.substring(0, 200));
+            
+            // Parse the dictionary
+            this.parseDictionaryText(text);
+            
+        } catch (error) {
+            console.error('Error loading default word list:', error);
+            this.patternWordList = [];
+            this.updateWordListStatus('Error loading dictionary - click "Load Dictionary" to select file manually');
+        }
+    }
+
+    /**
+     * Ensure dictionary is loaded, load it if needed
+     */
+    async ensureDictionaryLoaded() {
+        if (this.patternWordList.length > 0) {
+            return; // Already loaded
+        }
+        
+        console.log('Dictionary not loaded, attempting to load...');
+        this.updateWordListStatus('Loading dictionary...');
+        
+        // Check if we're running from a server (http/https) or local file (file://)
+        const isLocalFile = window.location.protocol === 'file:';
+        
+        if (isLocalFile) {
+            // For local files, we need to use the file picker
+            return new Promise((resolve) => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.txt,.dict';
+                input.onchange = (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            try {
+                                const text = e.target.result;
+                                this.parseDictionaryText(text);
+                                this.updateWordListStatus(`Loaded ${this.patternWordList.length} words from ${file.name}`);
+                                console.log(`Successfully loaded ${this.patternWordList.length} words from file`);
+                                resolve();
+                            } catch (error) {
+                                console.error('Error parsing file:', error);
+                                this.updateWordListStatus('Error parsing file');
+                                resolve();
+                            }
+                        };
+                        reader.readAsText(file);
+                    } else {
+                        resolve();
+                    }
+                };
+                input.click();
+            });
+        } else {
+            // For server, try to fetch the dictionary
+            try {
+                const response = await fetch('./spreadthewordlist.dict');
+                if (response.ok) {
+                    const text = await response.text();
+                    this.parseDictionaryText(text);
+                    this.updateWordListStatus(`Loaded ${this.patternWordList.length} words from spreadthewordlist.dict`);
+                } else {
+                    this.updateWordListStatus('Dictionary not found on server');
+                }
+            } catch (error) {
+                console.error('Error loading dictionary:', error);
+                this.updateWordListStatus('Error loading dictionary');
+            }
+        }
+    }
+
+    /**
+     * Parse dictionary text and populate patternWordList
+     */
+    parseDictionaryText(text) {
+        const lines = text.split('\n').filter(line => line.trim());
+        console.log('Total lines:', lines.length);
+        console.log('First 5 lines:', lines.slice(0, 5));
+        
+        // Simple parsing - just split by semicolon
+        this.patternWordList = [];
+        let validWords = 0;
+        let errors = 0;
+        
+        for (const line of lines) {
+            if (errors > 100) break;
+            
+            const parts = line.split(';');
+            if (parts.length >= 1) {
+                const word = parts[0].trim().toUpperCase();
+                const score = parts.length >= 2 ? parseInt(parts[1].trim()) || 50 : 50;
+                
+                if (word && word.length > 0 && /^[A-Z]+$/.test(word)) {
+                    this.patternWordList.push(`${word};${score}`);
+                    validWords++;
+                } else {
+                    errors++;
+                }
+            }
+        }
+        
+        console.log(`Parsed ${validWords} valid words, ${errors} errors`);
+        console.log('First 5 parsed words:', this.patternWordList.slice(0, 5));
+        
+        this.updateWordListStatus(`Loaded ${this.patternWordList.length} words from spreadthewordlist.dict`);
+        console.log('=== DICTIONARY LOADING COMPLETE ===');
+    }
+
+    /**
+     * Trigger file picker for dictionary loading
+     */
+    triggerFilePicker() {
+        console.log('triggerFilePicker called');
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.txt,.dict';
+        console.log('File input created, clicking...');
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const text = e.target.result;
+                        this.parseDictionaryText(text);
+                        this.updateWordListStatus(`Loaded ${this.patternWordList.length} words from ${file.name}`);
+                        console.log(`Successfully loaded ${this.patternWordList.length} words from file`);
+                        
+                    } catch (error) {
+                        console.error('Error parsing file:', error);
+                        this.updateWordListStatus('Error parsing file');
+                    }
+                };
+                reader.readAsText(file);
+            }
+        };
+        input.click();
+    }
+
+    /**
+     * Normalize word like the Rust implementation
+     */
+    normalizeWord(word) {
+        return word
+            .toLowerCase()
+            .replace(/[^a-z]/g, '') // Remove non-letters
+            .toUpperCase();
+    }
+
+    updateWordListStatus(message) {
+        const statusEl = document.getElementById('wordListStatus');
+        if (statusEl) {
+            statusEl.textContent = message;
+        }
+    }
+
+    initializeAutoFill() {
+        // Initialize the auto-fill module if available
+        if (typeof CrosswordAutoFill !== 'undefined') {
+            this.autoFill = new CrosswordAutoFill(this);
+            console.log('Auto-fill module initialized');
+        } else {
+            console.log('Auto-fill module not available');
+        }
     }
 }
 

@@ -528,6 +528,28 @@ main {
     background: #e8e8e8;
 }
 
+.auto-fill-section {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #e5e5e5;
+}
+
+.auto-fill-section h4 {
+    color: #000;
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    border-bottom: 1px solid #e5e5e5;
+    padding-bottom: 5px;
+    font-family: 'Georgia', serif;
+    font-weight: 600;
+}
+
+.auto-fill-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
 .word-detail {
     margin-bottom: 8px;
     font-size: 13px;
