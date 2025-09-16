@@ -2030,8 +2030,13 @@ class CrosswordManager {
         const isLocalFile = window.location.protocol === 'file:';
         
         if (isLocalFile) {
-            console.log('Running from local file - skipping automatic load');
-            this.updateWordListStatus('Local file mode - dictionary will load when needed');
+            console.log('Running from local file - browsers block fetch() for security');
+            this.updateWordListStatus('Local file mode - click "Load Dictionary" to select spreadthewordlist.dict');
+            
+            // Automatically trigger the file picker for local files
+            setTimeout(() => {
+                this.triggerFilePicker();
+            }, 1000);
             return;
         }
         
@@ -2077,7 +2082,8 @@ class CrosswordManager {
         const isLocalFile = window.location.protocol === 'file:';
         
         if (isLocalFile) {
-            // For local files, we need to use the file picker
+            // For local files, browsers block fetch() for security reasons
+            // Use the file picker to let user select the dictionary file
             return new Promise((resolve) => {
                 const input = document.createElement('input');
                 input.type = 'file';
